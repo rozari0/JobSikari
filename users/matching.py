@@ -81,14 +81,16 @@ def match_jobs_for_user(user_profile, jobs_queryset, limit: int = 10) -> list[Jo
             if skill.name.lower() in user_skill_names
         ]
 
-        matches.append({
-            "job_id": job.id,
-            "title": job.title,
-            "company": job.company,
-            "match_score": match_score,
-            "matching_skills": matching_skills,
-            "total_skills": len(job_skill_names),
-        })
+        matches.append(
+            {
+                "job_id": job.id,
+                "title": job.title,
+                "company": job.company,
+                "match_score": match_score,
+                "matching_skills": matching_skills,
+                "total_skills": len(job_skill_names),
+            }
+        )
 
     # Sort by match_score descending, then by number of matching skills
     matches.sort(
@@ -129,14 +131,16 @@ def match_resources_for_user(
             if skill.name.lower() in user_skill_names
         ]
 
-        matches.append({
-            "resource_id": resource.id,
-            "title": resource.title,
-            "platform": resource.platform or "",
-            "match_score": match_score,
-            "matching_skills": matching_skills,
-            "total_skills": len(resource_skill_names),
-        })
+        matches.append(
+            {
+                "resource_id": resource.id,
+                "title": resource.title,
+                "platform": resource.platform or "",
+                "match_score": match_score,
+                "matching_skills": matching_skills,
+                "total_skills": len(resource_skill_names),
+            }
+        )
 
     # Sort by match_score descending, then by number of matching skills
     matches.sort(

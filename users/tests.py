@@ -1,7 +1,8 @@
+import json
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-import json
 
 
 class UsersManagersTests(TestCase):
@@ -61,11 +62,13 @@ class RegistrationApiTests(TestCase):
         # Invalid email -> handled by view validation -> 400 or schema 422
         resp = client.post(
             "/api/register",
-            data=json.dumps({
-                "fullname": "Alice",
-                "email": "not-an-email",
-                "password": "longenough",
-            }),
+            data=json.dumps(
+                {
+                    "fullname": "Alice",
+                    "email": "not-an-email",
+                    "password": "longenough",
+                }
+            ),
             content_type="application/json",
         )
         # Ninja/Pydantic may return 422 for type/format issues; accept 400 or 422
@@ -74,11 +77,13 @@ class RegistrationApiTests(TestCase):
         # Short password -> our view returns 400
         resp = client.post(
             "/api/register",
-            data=json.dumps({
-                "fullname": "Alice",
-                "email": "a@example.com",
-                "password": "short",
-            }),
+            data=json.dumps(
+                {
+                    "fullname": "Alice",
+                    "email": "a@example.com",
+                    "password": "short",
+                }
+            ),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 400)
@@ -86,11 +91,13 @@ class RegistrationApiTests(TestCase):
         # Successful registration
         resp = client.post(
             "/api/register",
-            data=json.dumps({
-                "fullname": "Alice",
-                "email": "a@example.com",
-                "password": "longenough",
-            }),
+            data=json.dumps(
+                {
+                    "fullname": "Alice",
+                    "email": "a@example.com",
+                    "password": "longenough",
+                }
+            ),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 200)

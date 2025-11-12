@@ -1,11 +1,12 @@
 from django.shortcuts import get_object_or_404
-from ninja_extra import api_controller, http_get, http_post
 from ninja.errors import HttpError
+from ninja_extra import api_controller, http_get, http_post
 
-from .models import LearningResource
-from .schema import LearningResourceSchema, CreateLearningResourceSchema
-from .filters import ResourceFilter
 from users.models import Skill
+
+from .filters import ResourceFilter
+from .models import LearningResource
+from .schema import CreateLearningResourceSchema, LearningResourceSchema
 
 
 @api_controller
@@ -25,15 +26,17 @@ class ResourcesAPI:
         ).qs
         results = []
         for r in qs.distinct():
-            results.append({
-                "id": r.id,
-                "title": r.title,
-                "platform": r.platform,
-                "url": r.url,
-                "related_skills": [s.name for s in r.related_skills.all()],
-                "cost": r.cost,
-                "description": r.description,
-            })
+            results.append(
+                {
+                    "id": r.id,
+                    "title": r.title,
+                    "platform": r.platform,
+                    "url": r.url,
+                    "related_skills": [s.name for s in r.related_skills.all()],
+                    "cost": r.cost,
+                    "description": r.description,
+                }
+            )
         return results
 
     @http_get("/resources/{resource_id}", response=LearningResourceSchema)

@@ -7,6 +7,7 @@ Usage:
 """
 
 from django.core.management.base import BaseCommand
+
 from jobs.models import Job
 from users.models import Skill
 

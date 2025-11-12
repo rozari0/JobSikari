@@ -4,14 +4,15 @@ Tests for matching logic and dashboard API endpoints.
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+
 from jobs.models import Job
 from resources.models import LearningResource
-from users.models import Skill, UserProfile
 from users.matching import (
     calculate_skill_overlap,
     match_jobs_for_user,
     match_resources_for_user,
 )
+from users.models import Skill, UserProfile
 
 User = get_user_model()
 

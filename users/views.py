@@ -8,8 +8,8 @@ from ninja_extra import api_controller, http_get, http_post
 from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.controller import NinjaJWTDefaultController
 
-from .models import User, UserProfile, Skill, Careers
-from .schema import RegisterUserSchema, UserSchema, ProfileSchema, UpdateProfileSchema
+from .models import Careers, Skill, User, UserProfile
+from .schema import ProfileSchema, RegisterUserSchema, UpdateProfileSchema, UserSchema
 
 
 @api_controller

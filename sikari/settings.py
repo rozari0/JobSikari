@@ -6,7 +6,10 @@ SECRET_KEY = "django-insecure-_b!tfk8x5g085ifad4v49b%6v9!wxmo@u4xh%3dofw(sww@%uo
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "*.traefik.me",
+    "*",
+]
 
 
 INSTALLED_APPS = (

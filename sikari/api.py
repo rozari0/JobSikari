@@ -1,9 +1,9 @@
 from ninja_extra import NinjaExtraAPI
 
-from users.views import NinjaJWTController, RegisterAPI, UserAPI
-from users.dashboard import MatchingAPI, DashboardAPI
-from resources.views import ResourcesAPI
 from jobs.views import JobsAPI
+from resources.views import ResourcesAPI
+from users.dashboard import DashboardAPI, MatchingAPI
+from users.views import NinjaJWTController, RegisterAPI, UserAPI
 
 api = NinjaExtraAPI()
 

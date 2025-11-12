@@ -38,22 +38,24 @@ class MatchingAPI:
             job = Job.objects.prefetch_related("required_skills").get(
                 id=match["job_id"]
             )
-            results.append({
-                "job": {
-                    "id": job.id,
-                    "title": job.title,
-                    "company": job.company,
-                    "location": job.location,
-                    "is_remote": job.is_remote,
-                    "required_skills": [s.name for s in job.required_skills.all()],
-                    "recommended_experience": job.recommended_experience,
-                    "job_type": job.job_type,
-                    "description": job.description,
-                    "posted_at": job.posted_at.isoformat(),
-                },
-                "match_score": match["match_score"],
-                "matching_skills": match["matching_skills"],
-            })
+            results.append(
+                {
+                    "job": {
+                        "id": job.id,
+                        "title": job.title,
+                        "company": job.company,
+                        "location": job.location,
+                        "is_remote": job.is_remote,
+                        "required_skills": [s.name for s in job.required_skills.all()],
+                        "recommended_experience": job.recommended_experience,
+                        "job_type": job.job_type,
+                        "description": job.description,
+                        "posted_at": job.posted_at.isoformat(),
+                    },
+                    "match_score": match["match_score"],
+                    "matching_skills": match["matching_skills"],
+                }
+            )
 
         return results
 
@@ -79,19 +81,23 @@ class MatchingAPI:
             resource = LearningResource.objects.prefetch_related("related_skills").get(
                 id=match["resource_id"]
             )
-            results.append({
-                "resource": {
-                    "id": resource.id,
-                    "title": resource.title,
-                    "platform": resource.platform,
-                    "url": resource.url,
-                    "related_skills": [s.name for s in resource.related_skills.all()],
-                    "cost": resource.cost,
-                    "description": resource.description,
-                },
-                "match_score": match["match_score"],
-                "matching_skills": match["matching_skills"],
-            })
+            results.append(
+                {
+                    "resource": {
+                        "id": resource.id,
+                        "title": resource.title,
+                        "platform": resource.platform,
+                        "url": resource.url,
+                        "related_skills": [
+                            s.name for s in resource.related_skills.all()
+                        ],
+                        "cost": resource.cost,
+                        "description": resource.description,
+                    },
+                    "match_score": match["match_score"],
+                    "matching_skills": match["matching_skills"],
+                }
+            )
 
         return results
 
@@ -143,22 +149,24 @@ class DashboardAPI:
             job = Job.objects.prefetch_related("required_skills").get(
                 id=match["job_id"]
             )
-            recommended_jobs.append({
-                "job": {
-                    "id": job.id,
-                    "title": job.title,
-                    "company": job.company,
-                    "location": job.location,
-                    "is_remote": job.is_remote,
-                    "required_skills": [s.name for s in job.required_skills.all()],
-                    "recommended_experience": job.recommended_experience,
-                    "job_type": job.job_type,
-                    "description": job.description,
-                    "posted_at": job.posted_at.isoformat(),
-                },
-                "match_score": match["match_score"],
-                "matching_skills": match["matching_skills"],
-            })
+            recommended_jobs.append(
+                {
+                    "job": {
+                        "id": job.id,
+                        "title": job.title,
+                        "company": job.company,
+                        "location": job.location,
+                        "is_remote": job.is_remote,
+                        "required_skills": [s.name for s in job.required_skills.all()],
+                        "recommended_experience": job.recommended_experience,
+                        "job_type": job.job_type,
+                        "description": job.description,
+                        "posted_at": job.posted_at.isoformat(),
+                    },
+                    "match_score": match["match_score"],
+                    "matching_skills": match["matching_skills"],
+                }
+            )
 
         # Get recommended resources
         resources_qs = LearningResource.objects.prefetch_related("related_skills").all()
@@ -169,19 +177,23 @@ class DashboardAPI:
             resource = LearningResource.objects.prefetch_related("related_skills").get(
                 id=match["resource_id"]
             )
-            recommended_resources.append({
-                "resource": {
-                    "id": resource.id,
-                    "title": resource.title,
-                    "platform": resource.platform,
-                    "url": resource.url,
-                    "related_skills": [s.name for s in resource.related_skills.all()],
-                    "cost": resource.cost,
-                    "description": resource.description,
-                },
-                "match_score": match["match_score"],
-                "matching_skills": match["matching_skills"],
-            })
+            recommended_resources.append(
+                {
+                    "resource": {
+                        "id": resource.id,
+                        "title": resource.title,
+                        "platform": resource.platform,
+                        "url": resource.url,
+                        "related_skills": [
+                            s.name for s in resource.related_skills.all()
+                        ],
+                        "cost": resource.cost,
+                        "description": resource.description,
+                    },
+                    "match_score": match["match_score"],
+                    "matching_skills": match["matching_skills"],
+                }
+            )
 
         return {
             "profile": profile_data,

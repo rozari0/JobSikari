@@ -1,12 +1,13 @@
-from django.shortcuts import get_object_or_404
-from ninja_extra import api_controller, http_get, http_post
 from django.db import models
+from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
-from .filters import JobFilter
+from ninja_extra import api_controller, http_get, http_post
 
-from .models import Job
-from .schema import JobSchema, CreateJobSchema
 from users.models import Skill
+
+from .filters import JobFilter
+from .models import Job
+from .schema import CreateJobSchema, JobSchema
 
 
 @api_controller
@@ -30,18 +31,20 @@ class JobsAPI:
             qs = qs.filter(is_remote=True)
         results = []
         for j in qs.distinct().order_by("-posted_at"):
-            results.append({
-                "id": j.id,
-                "title": j.title,
-                "company": j.company,
-                "location": j.location,
-                "is_remote": j.is_remote,
-                "required_skills": [s.name for s in j.required_skills.all()],
-                "recommended_experience": j.recommended_experience,
-                "job_type": j.job_type,
-                "description": j.description,
-                "posted_at": j.posted_at.isoformat(),
-            })
+            results.append(
+                {
+                    "id": j.id,
+                    "title": j.title,
+                    "company": j.company,
+                    "location": j.location,
+                    "is_remote": j.is_remote,
+                    "required_skills": [s.name for s in j.required_skills.all()],
+                    "recommended_experience": j.recommended_experience,
+                    "job_type": j.job_type,
+                    "description": j.description,
+                    "posted_at": j.posted_at.isoformat(),
+                }
+            )
         return results
 
     @http_get("/jobs/{job_id}", response=JobSchema)
