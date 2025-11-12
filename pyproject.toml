@@ -4,6 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
     "django>=5.2.8",
+    "django-filter>=25.2",
     "django-lifecycle>=1.2.4",
     "django-ninja>=1.4.5",
     "django-ninja-extra>=0.30.2",

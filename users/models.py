@@ -67,6 +67,8 @@ class UserProfile(LifecycleModel):
         max_length=3, choices=EducationLevel.choices, blank=True, null=True
     )
     bio = models.TextField(blank=True, null=True)
+    # Free-text CV or notes pasted by the user
+    cv_text = models.TextField(blank=True, null=True)
     experience = models.CharField(
         max_length=2, choices=ExperienceLevel.choices, blank=True, null=True
     )

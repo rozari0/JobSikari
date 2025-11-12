@@ -20,6 +20,8 @@ INSTALLED_APPS = (
     ]
     + [
         "users",
+        "resources",
+        "jobs",
     ]
     + [
         "ninja_extra",

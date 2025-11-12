@@ -1,13 +1,15 @@
 import uuid
 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 from ninja_extra import api_controller, http_get, http_post
 from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.controller import NinjaJWTDefaultController
 
-from .models import User, UserProfile
-from .schema import RegisterUserSchema, UserSchema
+from .models import User, UserProfile, Skill, Careers
+from .schema import RegisterUserSchema, UserSchema, ProfileSchema, UpdateProfileSchema
 
 
 @api_controller
@@ -46,11 +48,93 @@ class UserAPI:
             "email": user.email,
         }
 
+    @http_get("/profile", response=ProfileSchema, auth=JWTAuth())
+    def get_profile(self, request):
+        user = request.user
+        profile = user.profile
+        return {
+            "id": user.id,
+            "fullname": profile.fullname,
+            "email": user.email,
+            "education": profile.education,
+            "experience": profile.experience,
+            "bio": profile.bio,
+            "skills": [s.name for s in profile.skills.all()],
+            "preferred_careers": [c.title for c in profile.preferred_careers.all()],
+            "cv_text": profile.cv_text,
+        }
+
+    @http_post("/profile", response=ProfileSchema, auth=JWTAuth())
+    def update_profile(self, request, data: UpdateProfileSchema):
+        user = request.user
+        profile = user.profile
+
+        if data.fullname is not None:
+            profile.fullname = data.fullname
+        if data.education is not None:
+            profile.education = data.education
+        if data.experience is not None:
+            profile.experience = data.experience
+        if data.bio is not None:
+            profile.bio = data.bio
+        if data.cv_text is not None:
+            profile.cv_text = data.cv_text
+
+        # Skills: accept list of skill names, create if missing
+        if data.skills is not None:
+            skill_objs = []
+            for name in data.skills:
+                name = name.strip()
+                if not name:
+                    continue
+                skill_obj, _ = Skill.objects.get_or_create(name=name)
+                skill_objs.append(skill_obj)
+            profile.skills.set(skill_objs)
+
+        # Preferred careers: accept list of titles
+        if data.preferred_careers is not None:
+            career_objs = []
+            for title in data.preferred_careers:
+                title = title.strip()
+                if not title:
+                    continue
+                career_obj, _ = Careers.objects.get_or_create(title=title)
+                career_objs.append(career_obj)
+            profile.preferred_careers.set(career_objs)
+
+        profile.save()
+        return {
+            "id": user.id,
+            "fullname": profile.fullname,
+            "email": user.email,
+            "education": profile.education,
+            "experience": profile.experience,
+            "bio": profile.bio,
+            "skills": [s.name for s in profile.skills.all()],
+            "preferred_careers": [c.title for c in profile.preferred_careers.all()],
+            "cv_text": profile.cv_text,
+        }
+
 
 @api_controller()
 class RegisterAPI:
     @http_post("/register", response=UserSchema)
     def register_user(self, request, data: RegisterUserSchema):
+        # Basic validation
+        if not data.fullname or not data.fullname.strip():
+            raise HttpError(400, "fullname is required")
+
+        try:
+            validate_email(data.email)
+        except ValidationError:
+            raise HttpError(400, "Invalid email format")
+
+        if len(data.password or "") < 8:
+            raise HttpError(400, "Password must be at least 8 characters")
+
+        if User.objects.filter(email=data.email).exists():
+            raise HttpError(400, "A user with that email already exists")
+
         user = User.objects.create_user(
             username=str(uuid.uuid4()),
             email=data.email,
