@@ -1,8 +1,10 @@
 import uuid
 
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
+from django.utils.text import slugify
 from ninja.errors import HttpError
 from ninja_extra import api_controller, http_get, http_post
 from ninja_jwt.authentication import JWTAuth
@@ -87,7 +89,24 @@ class UserAPI:
                 name = name.strip()
                 if not name:
                     continue
-                skill_obj, _ = Skill.objects.get_or_create(name=name)
+                
+                # Try to get by slug first (in case different names slugify to same slug)
+                slug = slugify(name)
+                skill_obj = None
+                try:
+                    skill_obj = Skill.objects.get(slug=slug)
+                except Skill.DoesNotExist:
+                    # Try to get by name (case-insensitive)
+                    try:
+                        skill_obj = Skill.objects.get(name__iexact=name)
+                    except Skill.DoesNotExist:
+                        # Create new skill, handling potential slug collisions
+                        try:
+                            skill_obj, _ = Skill.objects.get_or_create(name=name)
+                        except IntegrityError:
+                            # If slug collision occurs, get the existing skill by slug
+                            skill_obj = Skill.objects.get(slug=slug)
+                
                 skill_objs.append(skill_obj)
             profile.skills.set(skill_objs)
 
