@@ -1,3 +1,5 @@
+from typing import Optional
+
 from ninja import Schema
 
 
@@ -5,10 +7,12 @@ class UserSchema(Schema):
     id: int
     fullname: str
     email: str
+    username: Optional[str] = None
     education: str | None = None
     experience: str | None = None
     skills: list[str] | None = None
     preferred_careers: list[str] | None = None
+    cv_text: Optional[str] = None
 
 
 class RegisterUserSchema(Schema):
@@ -21,6 +25,7 @@ class ProfileSchema(Schema):
     id: int
     fullname: str
     email: str
+    username: Optional[str] = None
     education: str | None = None
     experience: str | None = None
     bio: str | None = None

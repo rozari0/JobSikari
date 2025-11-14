@@ -28,10 +28,14 @@ class UserAPI:
             "id": user.id,
             "fullname": user.profile.fullname,
             "email": user.email,
+            "username": user.username,
             "education": user.profile.education,
             "experience": user.profile.experience,
-            "skills": user.profile.skills,
-            "preferred_careers": user.profile.preferred_careers,
+            "skills": [s.name for s in user.profile.skills.all()],
+            "preferred_careers": [
+                career.title for career in user.profile.preferred_careers.all()
+            ],
+            "cv_text": user.profile.cv_text,
         }
 
     @http_get(
@@ -63,6 +67,7 @@ class UserAPI:
             "id": user.id,
             "fullname": profile.fullname,
             "email": user.email,
+            "username": user.username,
             "education": profile.education,
             "experience": profile.experience,
             "bio": profile.bio,

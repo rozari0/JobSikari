@@ -1,7 +1,14 @@
 from datetime import timedelta
 from pathlib import Path
 
+import environ
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / ".env")
+
 
 SECRET_KEY = "django-insecure-_b!tfk8x5g085ifad4v49b%6v9!wxmo@u4xh%3dofw(sww@%uo"
 
@@ -126,4 +133,28 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 NINJA_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),  # Access token expires in 7 days
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Refresh token expires in 1 day
+}
+
+
+# S3
+AWS_S3_ACCESS_KEY_ID = env("AWS_S3_ACCESS_KEY_ID")
+AWS_S3_SECRET_ACCESS_KEY = env("AWS_S3_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME")
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": AWS_S3_ACCESS_KEY_ID,
+            "secret_key": AWS_S3_SECRET_ACCESS_KEY,
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "endpoint_url": AWS_S3_ENDPOINT_URL,
+            "region_name": AWS_S3_REGION_NAME,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
 }
