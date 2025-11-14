@@ -7,7 +7,7 @@ from django.core.validators import validate_email
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
-from ninja import File
+from ninja import File, Form
 from ninja.errors import HttpError
 from ninja.files import UploadedFile
 from ninja_extra import api_controller, http_delete, http_get, http_post
@@ -15,17 +15,18 @@ from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.controller import NinjaJWTDefaultController
 from pypdf import PdfReader
 
-from .models import Careers, GeneratedRoadmap, Skill, User, UserProfile
+from .models import Careers, GeneratedRoadmap, Project, Skill, User, UserProfile
 from .schema import (
     CVSchemaOut,
     ProfileSchema,
+    ProjectSchema,
     RegisterUserSchema,
     UpdateProfileSchema,
     UserSchema,
 )
 
 
-@api_controller
+@api_controller(tags=["UserAPI"])
 class UserAPI:
     @http_get("/users/{username}", response=UserSchema)
     def get_user(self, request, username: str):
@@ -42,6 +43,7 @@ class UserAPI:
                 career.title for career in user.profile.preferred_careers.all()
             ],
             "cv_text": user.profile.cv_text,
+            "projects": user.projects.all(),
         }
 
     @http_get(
@@ -82,6 +84,7 @@ class UserAPI:
             "cv_text": profile.cv_text,
             "cv_full": profile.cv_full,
             "suggested_roles": [c.title for c in profile.suggested_roles.all()],
+            "projects": user.projects.all(),
         }
 
     @http_post("/profile", response=ProfileSchema, auth=JWTAuth())
@@ -194,8 +197,29 @@ class UserAPI:
             request.user.profile.suggested_roles.add(career_obj)
         return {"message": "Suggested role(s) added successfully"}
 
+    @http_post("/add_project", auth=JWTAuth())
+    def add_project(
+        self, request, data: Form[ProjectSchema], file: File[UploadedFile] = None
+    ):
+        project = Project.objects.create(
+            user=request.user,
+            title=data.title,
+            description=data.description,
+            link=data.link,
+        )
+        if file:
+            project.image = file
+            project.save()
+        return {"message": "Project added successfully", "project_id": project.id}
 
-@api_controller()
+    @http_delete("/delete_project", auth=JWTAuth())
+    def delete_project(self, request, id: int):
+        project = get_object_or_404(Project, user=request.user, id=id)
+        project.delete()
+        return {"message": "Project deleted successfully"}
+
+
+@api_controller(tags="Register API")
 class RegisterAPI:
     @http_post("/register", response=UserSchema)
     def register_user(self, request, data: RegisterUserSchema):
@@ -235,7 +259,7 @@ class NinjaJWTController(NinjaJWTDefaultController):
     pass
 
 
-@api_controller
+@api_controller(tags=["PDF", "MISCs"])
 class PDFController:
     @http_post("/pdf/textify", auth=JWTAuth())
     def textify(self, request, file: File[UploadedFile]):

@@ -94,3 +94,14 @@ class GeneratedRoadmap(models.Model):
         null=True,
         blank=True,
     )
+
+
+class Project(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name="projects")
+    image = models.ImageField(upload_to="project_images/", blank=True, null=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    link = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.title} by {self.user.email}"

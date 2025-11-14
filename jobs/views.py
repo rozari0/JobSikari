@@ -11,7 +11,7 @@ from .models import Job
 from .schema import BDJobSchema, CreateJobSchema, JobSchema, YouTubeSearchResult
 
 
-@api_controller
+@api_controller(tags=["JOBS API"])
 class JobsAPI:
     @http_get("/jobs", response=list[JobSchema])
     def list_jobs(
@@ -131,7 +131,7 @@ def youtube_search(query, limit=5):
     return results
 
 
-@api_controller()
+@api_controller(tags=["External Search API"])
 class ExternalJobs:
     @http_get("/bdjobs/search", response=list[BDJobSchema])
     def fetch_bdjobs(self, request, query: str):
