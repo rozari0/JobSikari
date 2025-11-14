@@ -84,7 +84,7 @@ class Command(BaseCommand):
             {
                 "title": "Junior Python Developer",
                 "company": "TechStart Solutions",
-                "location": "San Francisco, CA",
+                "location": "Dhaka",
                 "is_remote": False,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Junior",
@@ -104,7 +104,7 @@ class Command(BaseCommand):
             {
                 "title": "Entry Level Full Stack Developer",
                 "company": "CodeLabs Inc",
-                "location": "Austin, TX",
+                "location": "Chittagong",
                 "is_remote": False,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Junior",
@@ -114,7 +114,7 @@ class Command(BaseCommand):
             {
                 "title": "Junior Backend Engineer",
                 "company": "DataFlow Systems",
-                "location": "Seattle, WA",
+                "location": "Remote",
                 "is_remote": True,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Junior",
@@ -134,7 +134,7 @@ class Command(BaseCommand):
             {
                 "title": "Junior Software Engineer",
                 "company": "TechVentures LLC",
-                "location": "Boston, MA",
+                "location": "Dhaka",
                 "is_remote": False,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Junior",
@@ -154,7 +154,7 @@ class Command(BaseCommand):
             {
                 "title": "Data Analyst Intern",
                 "company": "Analytics Pro",
-                "location": "New York, NY",
+                "location": "Dhaka",
                 "is_remote": False,
                 "job_type": Job.JobType.INTERNSHIP,
                 "recommended_experience": "Intern",
@@ -174,7 +174,7 @@ class Command(BaseCommand):
             {
                 "title": "PHP Developer - Junior",
                 "company": "WebSolutions Inc",
-                "location": "Chicago, IL",
+                "location": "Sylhet",
                 "is_remote": False,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Junior",
@@ -194,7 +194,7 @@ class Command(BaseCommand):
             {
                 "title": "Junior Full Stack Engineer",
                 "company": "Innovation Labs",
-                "location": "Denver, CO",
+                "location": "Remote",
                 "is_remote": True,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Junior",
@@ -204,7 +204,7 @@ class Command(BaseCommand):
             {
                 "title": "Mobile App Development Intern",
                 "company": "AppCreators",
-                "location": "Los Angeles, CA",
+                "location": "Dhaka",
                 "is_remote": False,
                 "job_type": Job.JobType.INTERNSHIP,
                 "recommended_experience": "Intern",
@@ -214,7 +214,7 @@ class Command(BaseCommand):
             {
                 "title": "Junior .NET Developer",
                 "company": "Enterprise Solutions Corp",
-                "location": "Dallas, TX",
+                "location": "Chittagong",
                 "is_remote": False,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Junior",
@@ -234,7 +234,7 @@ class Command(BaseCommand):
             {
                 "title": "JavaScript Developer",
                 "company": "WebTech Solutions",
-                "location": "Portland, OR",
+                "location": "Remote",
                 "is_remote": True,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Junior",
@@ -254,7 +254,7 @@ class Command(BaseCommand):
             {
                 "title": "UI/UX Developer Intern",
                 "company": "Design Studio",
-                "location": "San Diego, CA",
+                "location": "Dhaka",
                 "is_remote": False,
                 "job_type": Job.JobType.INTERNSHIP,
                 "recommended_experience": "Intern",
@@ -274,7 +274,7 @@ class Command(BaseCommand):
             {
                 "title": "Software Engineer Trainee",
                 "company": "TechAcademy Corp",
-                "location": "Miami, FL",
+                "location": "Dhaka",
                 "is_remote": False,
                 "job_type": Job.JobType.FULL_TIME,
                 "recommended_experience": "Intern",
