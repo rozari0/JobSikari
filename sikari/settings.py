@@ -22,6 +22,7 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = (
     [
         "unfold",
+        "unfold.contrib.forms",
         "django.contrib.admin",
         "django.contrib.auth",
         "django.contrib.contenttypes",
@@ -45,6 +46,7 @@ INSTALLED_APPS = (
 UNFOLD = {
     "SITE_TITLE": "Compass Admin",
     "SITE_HEADER": "Compass",
+    "DASHBOARD_CALLBACK": "users.views.dashboard_callback",
 }
 
 
@@ -73,7 +75,7 @@ ROOT_URLCONF = "sikari.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

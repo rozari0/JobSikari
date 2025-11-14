@@ -5,6 +5,7 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import IntegrityError
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from ninja import File, Form
@@ -14,6 +15,8 @@ from ninja_extra import api_controller, http_delete, http_get, http_post
 from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.controller import NinjaJWTDefaultController
 from pypdf import PdfReader
+
+from jobs.models import Job
 
 from .models import Careers, GeneratedRoadmap, Project, Skill, User, UserProfile
 from .schema import (
@@ -30,7 +33,12 @@ from .schema import (
 class UserAPI:
     @http_get("/users/{username}", response=UserSchema)
     def get_user(self, request, username: str):
-        user = get_object_or_404(User, username=username)
+        user = get_object_or_404(
+            User.objects.select_related("profile").prefetch_related(
+                "profile__skills", "profile__preferred_careers", "projects"
+            ),
+            username=username,
+        )
         return {
             "id": user.id,
             "fullname": user.profile.fullname,
@@ -311,3 +319,31 @@ class PDFController:
         cv.save()
 
         return cv
+
+
+def dashboard_callback(request, context):
+    user_count = User.objects.count()
+    job_count = Job.objects.count()
+    roadmap_generated_count = GeneratedRoadmap.objects.count()
+    most_preffered_careers = Careers.objects.annotate(
+        user_count=Count("interested_users")
+    ).order_by("-user_count")[:5]
+    most_suggested_roles = Careers.objects.annotate(
+        user_count=Count("suggested_users")
+    ).order_by("-user_count")[:5]
+    most_in_demand = Skill.objects.annotate(job_count=Count("jobs")).order_by(
+        "-job_count"
+    )[:5]
+
+    context.update(
+        {
+            "user_count": user_count,
+            "job_count": job_count,
+            "most_in_demand": most_in_demand,
+            "roadmap_generated_count": roadmap_generated_count,
+            "most_preffered_careers": most_preffered_careers,
+            "most_suggested_roles": most_suggested_roles,
+        }
+    )
+
+    return context

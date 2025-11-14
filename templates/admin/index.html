@@ -1,0 +1,214 @@
+{% extends 'admin/base.html' %}
+
+{% load i18n %}
+
+{% block title %}
+  {% if subtitle %}
+    {{ subtitle }} |
+  {% endif %}
+
+  {{ title }} | {{ site_title|default:_('Django site admin') }}
+{% endblock %}
+
+{% block branding %}
+  {% include 'unfold/helpers/site_branding.html' %}
+{% endblock %}
+{% block content %}
+  <style>
+    .dashboard-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+    }
+    
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    
+    .card-number {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #111;
+    }
+    
+    .card-label {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .full-card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+    
+    .skill-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .skill-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .skill-item:last-child {
+      border-bottom: none;
+    }
+    
+    .badge {
+      background: #f0f0f0;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+  </style>
+
+  <div class="dashboard-container">
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="card">
+        <div class="card-number">{{ user_count }}</div>
+        <div class="card-label">Total Users</div>
+      </div>
+
+      <div class="card">
+        <div class="card-number">{{ job_count }}</div>
+        <div class="card-label">Total Jobs</div>
+      </div>
+
+      <div class="card">
+        <div class="card-number">{{ roadmap_generated_count }}</div>
+        <div class="card-label">Roadmaps Generated</div>
+      </div>
+
+      <div class="card">
+        {% if most_in_demand %}
+          <div class="card-number">{{ most_in_demand.0.name }}</div>
+          <div class="card-label">{{ most_in_demand.0.job_count }} jobs</div>
+        {% else %}
+          <div class="card-label">No skill data</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Detailed Skill List -->
+    <div class="full-card">
+      <div class="section-title">In-Demand Skills</div>
+
+      {% if most_in_demand %}
+        <ul class="skill-list">
+          {% for skill in most_in_demand %}
+            <li class="skill-item">
+              <span>{{ skill.name }}</span>
+              <span class="badge">{{ skill.job_count }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div>No skills available.</div>
+      {% endif %}
+    </div>
+    <div class="full-card">
+      <div class="section-title">Skill Demand Chart</div>
+
+      <canvas id="skillsChart" height="120"></canvas>
+    </div>
+
+    <div class="full-card">
+      <div class="section-title">Preferred Careers</div>
+
+      {% if most_preffered_careers %}
+        <ul class="skill-list">
+          {% for career in most_preffered_careers %}
+            <li class="skill-item">
+              <span>{{ career.title }}</span>
+              <span class="badge">{{ career.user_count }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div>No skills available.</div>
+      {% endif %}
+    </div>
+    <div class="full-card">
+      <div class="section-title">Suggested Careers</div>
+
+      {% if most_suggested_roles %}
+        <ul class="skill-list">
+          {% for career in most_suggested_roles %}
+            <li class="skill-item">
+              <span>{{ career.title }}</span>
+              <span class="badge">{{ career.user_count }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div>No skills available.</div>
+      {% endif %}
+    </div>
+
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const skillLabels = [
+        {% for skill in most_in_demand %}
+            "{{ skill.name }}",
+        {% endfor %}
+    ];
+
+    const skillCounts = [
+        {% for skill in most_in_demand %}
+            {{ skill.job_count }},
+        {% endfor %}
+    ];
+
+    const ctx = document.getElementById('skillsChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: skillLabels,
+            datasets: [{
+                label: 'Number of Jobs',
+                data: skillCounts,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+});
+</script>
+  </div>
+{% endblock %}
