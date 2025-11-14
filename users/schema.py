@@ -27,6 +27,8 @@ class ProfileSchema(Schema):
     skills: list[str] | None = None
     preferred_careers: list[str] | None = None
     cv_text: str | None = None
+    cv_full: str | None = None
+    suggested_roles: list[str] | None = None
 
 
 class UpdateProfileSchema(Schema):
@@ -36,4 +38,5 @@ class UpdateProfileSchema(Schema):
     bio: str | None = None
     skills: list[str] | None = None
     preferred_careers: list[str] | None = None
+    suggested_roles: list[str] | None = None
     cv_text: str | None = None

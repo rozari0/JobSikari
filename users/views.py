@@ -1,14 +1,19 @@
+import os
+import tempfile
 import uuid
 
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.core.validators import validate_email
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
+from ninja import File
 from ninja.errors import HttpError
-from ninja_extra import api_controller, http_get, http_post
+from ninja.files import UploadedFile
+from ninja_extra import api_controller, http_delete, http_get, http_post
 from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.controller import NinjaJWTDefaultController
+from pypdf import PdfReader
 
 from .models import Careers, Skill, User, UserProfile
 from .schema import ProfileSchema, RegisterUserSchema, UpdateProfileSchema, UserSchema
@@ -64,6 +69,7 @@ class UserAPI:
             "skills": [s.name for s in profile.skills.all()],
             "preferred_careers": [c.title for c in profile.preferred_careers.all()],
             "cv_text": profile.cv_text,
+            "suggested_roles": [c.title for c in profile.suggested_roles.all()],
         }
 
     @http_post("/profile", response=ProfileSchema, auth=JWTAuth())
@@ -89,7 +95,7 @@ class UserAPI:
                 name = name.strip()
                 if not name:
                     continue
-                
+
                 # Try to get by slug first (in case different names slugify to same slug)
                 slug = slugify(name)
                 skill_obj = None
@@ -106,7 +112,7 @@ class UserAPI:
                         except IntegrityError:
                             # If slug collision occurs, get the existing skill by slug
                             skill_obj = Skill.objects.get(slug=slug)
-                
+
                 skill_objs.append(skill_obj)
             profile.skills.set(skill_objs)
 
@@ -133,6 +139,48 @@ class UserAPI:
             "preferred_careers": [c.title for c in profile.preferred_careers.all()],
             "cv_text": profile.cv_text,
         }
+
+    @http_get("/skills", auth=JWTAuth())
+    def list_skills(self, request):
+        skills = request.user.profile.skills.values_list("name", flat=True)
+        return {"skills": list(skills)}
+
+    @http_post("/skills", auth=JWTAuth())
+    def add_skill(self, request, skill_names: list[str]):
+        for skill_name in skill_names:
+            skill_name = skill_name.strip()
+
+            slug = slugify(skill_name)
+            skill_obj = None
+            try:
+                Skill.objects.get(slug=slug)
+            except Skill.DoesNotExist:
+                skill_obj = Skill.objects.create(name=skill_name)
+
+            request.user.profile.skills.add(skill_obj)
+        return {"message": "Skill(s) added successfully"}
+
+    @http_delete("/skills", auth=JWTAuth())
+    def remove_skill(self, request, skill_name: str):
+        skill_name = skill_name.strip()
+        slug = slugify(skill_name)
+        try:
+            skill_obj = Skill.objects.get(slug=slug)
+            request.user.profile.skills.remove(skill_obj)
+            return {"message": "Skill removed successfully"}
+        except Skill.DoesNotExist:
+            raise HttpError(404, "Skill not found")
+
+    @http_post("/suggested_roles", auth=JWTAuth())
+    def add_suggested_role(self, request, career_titles: list[str]):
+        print(career_titles)
+        for title in career_titles:
+            title = title.strip()
+            if not title:
+                continue
+            career_obj, _ = Careers.objects.get_or_create(title=title.capitalize())
+            request.user.profile.suggested_roles.add(career_obj)
+        return {"message": "Suggested role(s) added successfully"}
 
 
 @api_controller()
@@ -173,3 +221,40 @@ class RegisterAPI:
 
 class NinjaJWTController(NinjaJWTDefaultController):
     pass
+
+
+@api_controller("/pdf")
+class PDFController:
+    @http_post("/textify", auth=JWTAuth())
+    def textify(self, request, file: File[UploadedFile]):
+        try:
+            suffix = (
+                os.path.splitext(getattr(file, "filename", "upload.pdf"))[1] or ".pdf"
+            )
+            tmp_path = None
+            try:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                    tmp_path = tmp.name
+                    # Try to read from underlying file object, fallback to .read()
+                    try:
+                        file.file.seek(0)
+                        tmp.write(file.file.read())
+                    except Exception:
+                        tmp.write(file.read())
+
+                reader = PdfReader(tmp_path)
+                text_parts = []
+                for page in reader.pages:
+                    text_parts.append(page.extract_text() or "")
+
+                request.user.profile.cv_full = "\n".join(text_parts).strip()
+                request.user.profile.save()
+                return {"text": "\n".join(text_parts).strip()}
+            finally:
+                if tmp_path and os.path.exists(tmp_path):
+                    try:
+                        os.remove(tmp_path)
+                    except Exception:
+                        pass
+        except Exception as e:
+            raise HttpError(400, f"Failed to extract text from PDF: {str(e)}")

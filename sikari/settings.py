@@ -15,6 +15,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = (
     [
+        "unfold",
         "django.contrib.admin",
         "django.contrib.auth",
         "django.contrib.contenttypes",
@@ -31,6 +32,13 @@ INSTALLED_APPS = (
         "ninja_extra",
     ]
 )
+
+
+UNFOLD = {
+    "SITE_TITLE": "Compass Admin",
+    "SITE_HEADER": "Compass",
+}
+
 
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": "https://app.project.org/account/verify-email/{key}",

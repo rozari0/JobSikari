@@ -68,6 +68,7 @@ class UserProfile(LifecycleModel):
     )
     bio = models.TextField(blank=True, null=True)
     # Free-text CV or notes pasted by the user
+    cv_full = models.TextField(blank=True, null=True)
     cv_text = models.TextField(blank=True, null=True)
     experience = models.CharField(
         max_length=2, choices=ExperienceLevel.choices, blank=True, null=True
@@ -76,3 +77,9 @@ class UserProfile(LifecycleModel):
     preferred_careers = models.ManyToManyField(
         Careers, related_name="interested_users", blank=True
     )
+    suggested_roles = models.ManyToManyField(
+        Careers, related_name="suggested_users", blank=True
+    )
+
+    def __str__(self):
+        return f"Profile of {self.fullname} ({self.user.email})"

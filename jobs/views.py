@@ -1,13 +1,14 @@
-from django.db import models
+import requests
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 from ninja_extra import api_controller, http_get, http_post
+from yt_dlp import YoutubeDL
 
 from users.models import Skill
 
 from .filters import JobFilter
 from .models import Job
-from .schema import CreateJobSchema, JobSchema
+from .schema import BDJobSchema, CreateJobSchema, JobSchema, YouTubeSearchResult
 
 
 @api_controller
@@ -98,3 +99,60 @@ class JobsAPI:
             "description": j.description,
             "posted_at": j.posted_at.isoformat(),
         }
+
+
+def youtube_search(query, limit=5):
+    """
+    Perform a YouTube search with yt-dlp and return the first `limit` results.
+    """
+    ydl_opts = {
+        "quiet": True,
+        "skip_download": True,
+        "extract_flat": True,  # prevents full metadata download
+    }
+
+    search_query = f"ytsearch{limit}:{query}"
+
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(search_query, download=False)
+
+    results = []
+    for entry in info.get("entries", [])[:limit]:
+        results.append(
+            {
+                "title": entry.get("title"),
+                "url": f"https://www.youtube.com/watch?v={entry.get('id')}",
+                "thumbnail": f"https://img.youtube.com/vi/{entry.get('id')}/default.jpg",
+                "channel": entry.get("channel"),
+                "duration": entry.get("duration"),
+            }
+        )
+
+    return results
+
+
+@api_controller()
+class ExternalJobs:
+    @http_get("/bdjobs/search", response=list[BDJobSchema])
+    def fetch_bdjobs(self, request, query: str):
+        response = requests.get(
+            f"https://api.bdjobs.com/Jobs/api/JobSearch/GetJobSearch?isPro=1&rpp=50&pg=1&keyword={query}"
+        )
+
+        return [
+            {
+                "id": job["Jobid"],
+                "title": job["jobTitle"],
+                "company": job["companyName"],
+                "location": job["location"],
+                "is_remote": job.get("OnlineJob", False),
+                "recommended_experience": job["experience"],
+                "description": job["jobContext"],
+                "deadline": job["deadline"],
+            }
+            for job in response.json().get("data", [])[:5]
+        ]
+
+    @http_get("/youtube/search", response=list[YouTubeSearchResult])
+    def youtube_search_endpoint(self, request, query: str, limit: int = 5):
+        return youtube_search(query, limit)
