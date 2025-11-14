@@ -148,14 +148,6 @@ STORAGES = {
 
 STATIC_URL = "static/"
 
-if STATIC_S3:
-    STORAGES["staticfiles"] = {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-    }
-
-    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/staticfiles/"
-    STATIC_ROOT = BASE_DIR / "staticfiles"
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
