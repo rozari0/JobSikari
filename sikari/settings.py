@@ -18,6 +18,7 @@ ALLOWED_HOSTS = [
     "*",
 ]
 
+STATIC_S3 = env("STATIC_S3", bool, False)
 
 INSTALLED_APPS = (
     [
@@ -119,23 +120,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = "static/"
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# JWT Configuration
-NINJA_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),  # Access token expires in 7 days
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Refresh token expires in 1 day
-}
-
-
 # S3
 AWS_S3_ACCESS_KEY_ID = env("AWS_S3_ACCESS_KEY_ID")
 AWS_S3_SECRET_ACCESS_KEY = env("AWS_S3_SECRET_ACCESS_KEY")
@@ -157,4 +141,29 @@ STORAGES = {
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
+}
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+STATIC_URL = "static/"
+
+if STATIC_S3:
+    STORAGES["staticfiles"] = {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    }
+
+    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/staticfiles/"
+    STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# JWT Configuration
+NINJA_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),  # Access token expires in 7 days
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Refresh token expires in 1 day
 }

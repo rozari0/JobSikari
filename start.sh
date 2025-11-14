@@ -4,6 +4,9 @@ set -e
 echo "Applying database migrations..."
 python manage.py migrate --noinput
 
+echo "Collecting Static..."
+python manage.py collectstatic --noinput
+
 echo "Seeding data"
 python manage.py seed_all
 
