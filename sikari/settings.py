@@ -18,7 +18,6 @@ ALLOWED_HOSTS = [
     "*",
 ]
 
-STATIC_S3 = env("STATIC_S3", bool, False)
 
 INSTALLED_APPS = (
     [
@@ -28,6 +27,7 @@ INSTALLED_APPS = (
         "django.contrib.contenttypes",
         "django.contrib.sessions",
         "django.contrib.messages",
+        "whitenoise.runserver_nostatic",
         "django.contrib.staticfiles",
     ]
     + [
@@ -59,6 +59,7 @@ AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Static File Serve
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     # "django.middleware.csrf.CsrfViewMiddleware",
@@ -139,7 +140,7 @@ STORAGES = {
         },
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
