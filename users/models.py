@@ -83,3 +83,14 @@ class UserProfile(LifecycleModel):
 
     def __str__(self):
         return f"Profile of {self.fullname} ({self.user.email})"
+
+
+class GeneratedRoadmap(models.Model):
+    user = models.OneToOneField(
+        to=User, on_delete=models.CASCADE, related_name="generated_roadmap"
+    )
+    file = models.FileField(
+        upload_to="cvs",
+        null=True,
+        blank=True,
+    )

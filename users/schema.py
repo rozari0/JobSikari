@@ -45,3 +45,7 @@ class UpdateProfileSchema(Schema):
     preferred_careers: list[str] | None = None
     suggested_roles: list[str] | None = None
     cv_text: str | None = None
+
+
+class CVSchemaOut(Schema):
+    file: str | None = None

@@ -15,8 +15,14 @@ from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.controller import NinjaJWTDefaultController
 from pypdf import PdfReader
 
-from .models import Careers, Skill, User, UserProfile
-from .schema import ProfileSchema, RegisterUserSchema, UpdateProfileSchema, UserSchema
+from .models import Careers, GeneratedRoadmap, Skill, User, UserProfile
+from .schema import (
+    CVSchemaOut,
+    ProfileSchema,
+    RegisterUserSchema,
+    UpdateProfileSchema,
+    UserSchema,
+)
 
 
 @api_controller
@@ -74,6 +80,7 @@ class UserAPI:
             "skills": [s.name for s in profile.skills.all()],
             "preferred_careers": [c.title for c in profile.preferred_careers.all()],
             "cv_text": profile.cv_text,
+            "cv_full": profile.cv_full,
             "suggested_roles": [c.title for c in profile.suggested_roles.all()],
         }
 
@@ -228,9 +235,9 @@ class NinjaJWTController(NinjaJWTDefaultController):
     pass
 
 
-@api_controller("/pdf")
+@api_controller
 class PDFController:
-    @http_post("/textify", auth=JWTAuth())
+    @http_post("/pdf/textify", auth=JWTAuth())
     def textify(self, request, file: File[UploadedFile]):
         try:
             suffix = (
@@ -263,3 +270,20 @@ class PDFController:
                         pass
         except Exception as e:
             raise HttpError(400, f"Failed to extract text from PDF: {str(e)}")
+
+    @http_get("/roadmap/get", auth=JWTAuth(), response=CVSchemaOut)
+    def get_user_cv(self, request):
+        cv, _ = GeneratedRoadmap.objects.get_or_create(
+            user=request.user,
+        )
+        return cv
+
+    @http_post("/roadmap/save", auth=JWTAuth(), response=CVSchemaOut)
+    def save_user_cv(self, request, file: File[UploadedFile]):
+        cv, _ = GeneratedRoadmap.objects.get_or_create(
+            user=request.user,
+        )
+        cv.file = file
+        cv.save()
+
+        return cv
