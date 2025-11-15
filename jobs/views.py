@@ -1,5 +1,6 @@
 import requests
 from django.shortcuts import get_object_or_404
+from django.views.decorators.cache import cache_page
 from ninja.errors import HttpError
 from ninja_extra import api_controller, http_get, http_post
 from yt_dlp import YoutubeDL
@@ -11,8 +12,9 @@ from .models import Job
 from .schema import BDJobSchema, CreateJobSchema, JobSchema, YouTubeSearchResult
 
 
-@api_controller(tags=["JOBS API"])
+@api_controller(tags=["Jobs API"])
 class JobsAPI:
+    @cache_page(60)
     @http_get("/jobs", response=list[JobSchema])
     def list_jobs(
         self,
@@ -48,6 +50,7 @@ class JobsAPI:
             )
         return results
 
+    @cache_page(60)
     @http_get("/jobs/{job_id}", response=JobSchema)
     def get_job(self, request, job_id: int):
         job = get_object_or_404(Job, pk=job_id)
@@ -133,6 +136,7 @@ def youtube_search(query, limit=5):
 
 @api_controller(tags=["External Search API"])
 class ExternalJobs:
+    @cache_page(60)
     @http_get("/bdjobs/search", response=list[BDJobSchema])
     def fetch_bdjobs(self, request, query: str):
         response = requests.get(
@@ -153,6 +157,7 @@ class ExternalJobs:
             for job in response.json().get("data", [])[:5]
         ]
 
+    @cache_page(60)
     @http_get("/youtube/search", response=list[YouTubeSearchResult])
     def youtube_search_endpoint(self, request, query: str, limit: int = 5):
         return youtube_search(query, limit)

@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from ninja.errors import HttpError
 from ninja_extra import api_controller, http_get, http_post
+from django.views.decorators.cache import cache_page
 
 from users.models import Skill
 
@@ -11,6 +12,7 @@ from .schema import CreateLearningResourceSchema, LearningResourceSchema
 
 @api_controller
 class ResourcesAPI:
+    @cache_page(60)
     @http_get("/resources", response=list[LearningResourceSchema])
     def list_resources(
         self,
@@ -26,19 +28,18 @@ class ResourcesAPI:
         ).qs
         results = []
         for r in qs.distinct():
-            results.append(
-                {
-                    "id": r.id,
-                    "title": r.title,
-                    "platform": r.platform,
-                    "url": r.url,
-                    "related_skills": [s.name for s in r.related_skills.all()],
-                    "cost": r.cost,
-                    "description": r.description,
-                }
-            )
+            results.append({
+                "id": r.id,
+                "title": r.title,
+                "platform": r.platform,
+                "url": r.url,
+                "related_skills": [s.name for s in r.related_skills.all()],
+                "cost": r.cost,
+                "description": r.description,
+            })
         return results
 
+    @cache_page(60)
     @http_get("/resources/{resource_id}", response=LearningResourceSchema)
     def get_resource(self, request, resource_id: int):
         resource = get_object_or_404(LearningResource, pk=resource_id)

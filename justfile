@@ -5,7 +5,7 @@ run:
     export HIDE_PRODUCTION_WARNING=true ; uv run manage.py runserver
 
 runprod:
-    uv run gunicorn --workers=2 -b 0.0.0.0:8000 probahi.wsgi
+    uv run gunicorn --workers=2 -b 0.0.0.0:8000 sikari.wsgi
 
 makemigrations:
     uv run manage.py makemigrations
