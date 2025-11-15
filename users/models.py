@@ -63,15 +63,13 @@ class UserProfile(LifecycleModel):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     fullname = models.CharField(max_length=255)
-    education = models.CharField(
-        max_length=3, choices=EducationLevel.choices, blank=True, null=True
-    )
+    education = models.CharField(max_length=255, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     # Free-text CV or notes pasted by the user
     cv_full = models.TextField(blank=True, null=True)
     cv_text = models.TextField(blank=True, null=True)
     experience = models.CharField(
-        max_length=2, choices=ExperienceLevel.choices, blank=True, null=True
+        max_length=255, choices=ExperienceLevel.choices, blank=True, null=True
     )
     skills = models.ManyToManyField(Skill, related_name="user_profiles", blank=True)
     preferred_careers = models.ManyToManyField(
