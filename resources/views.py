@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
+from django.views.decorators.cache import cache_page
 from ninja.errors import HttpError
 from ninja_extra import api_controller, http_get, http_post
-from django.views.decorators.cache import cache_page
 
 from users.models import Skill
 
@@ -28,15 +28,17 @@ class ResourcesAPI:
         ).qs
         results = []
         for r in qs.distinct():
-            results.append({
-                "id": r.id,
-                "title": r.title,
-                "platform": r.platform,
-                "url": r.url,
-                "related_skills": [s.name for s in r.related_skills.all()],
-                "cost": r.cost,
-                "description": r.description,
-            })
+            results.append(
+                {
+                    "id": r.id,
+                    "title": r.title,
+                    "platform": r.platform,
+                    "url": r.url,
+                    "related_skills": [s.name for s in r.related_skills.all()],
+                    "cost": r.cost,
+                    "description": r.description,
+                }
+            )
         return results
 
     @cache_page(60)

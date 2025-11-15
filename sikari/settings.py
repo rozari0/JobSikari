@@ -9,14 +9,11 @@ env = environ.Env()
 environ.Env.read_env(BASE_DIR / ".env")
 
 
-SECRET_KEY = "django-insecure-_b!tfk8x5g085ifad4v49b%6v9!wxmo@u4xh%3dofw(sww@%uo"
+SECRET_KEY = env("DJANGO_SECRET_KEY", default="unsafe-secret-key")
 
-DEBUG = True
+DEBUG = env("DEBUG", cast=bool, default=False)
 
-ALLOWED_HOSTS = [
-    "*.traefik.me",
-    "*",
-]
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 
 INSTALLED_APPS = (
@@ -97,12 +94,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "sikari.wsgi.application"
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASES = {"default": env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")}
 
 
 AUTH_PASSWORD_VALIDATORS = [
